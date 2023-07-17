@@ -55,6 +55,7 @@ const PanelModel = types.model({
     'audio',
     'image',
     'hypertext',
+    'tabletext',
     'audioplus',
     'list',
     'dialog',

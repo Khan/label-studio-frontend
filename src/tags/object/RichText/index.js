@@ -1,9 +1,11 @@
 import { RichTextModel } from './model';
 import { HtxRichText } from './view';
+import { TableText } from './table';
 import Registry from '../../../core/Registry';
 
 Registry.addTag('text', RichTextModel, HtxRichText({ isText: true }));
 Registry.addTag('hypertext', RichTextModel, HtxRichText({ isText: false }));
+Registry.addTag('tabletext', RichTextModel, TableText({ isText: false }));
 Registry.addObjectType(RichTextModel);
 
 export { RichTextModel, HtxRichText };

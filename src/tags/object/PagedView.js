@@ -45,6 +45,7 @@ const Model = types.model({
     'image',
     'hypertext',
     'richtext',
+    'tabletext',
     'timeseries',
     'audioplus',
     'list',

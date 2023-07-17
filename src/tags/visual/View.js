@@ -75,6 +75,7 @@ const Model = types
       'image',
       'hypertext',
       'richtext',
+      'tabletext',
       'timeseries',
       'audioplus',
       'list',
