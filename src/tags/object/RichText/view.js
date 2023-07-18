@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOMServer from 'react-dom/server';
 import { htmlEscape, matchesSelector, moveStylesBetweenHeadTags } from '../../../utils/html';
 import ObjectTag from '../../../components/Tags/Object';
 import * as xpath from 'xpath-range';
@@ -14,7 +15,7 @@ import { observe } from 'mobx';
 const DBLCLICK_TIMEOUT = 450; // ms
 const DBLCLICK_RANGE = 5; // px
 
-class RichTextPieceView extends Component {
+export class RichTextPieceView extends Component {
   _regionSpanSelector = '.htx-highlight';
 
   loadingRef = React.createRef();
@@ -345,7 +346,7 @@ class RichTextPieceView extends Component {
   };
 
   render() {
-    const { item } = this.props;
+    const { item, valueToComponent } = this.props;
 
     if (!item._value) return null;
 
@@ -361,6 +362,14 @@ class RichTextPieceView extends Component {
         .split(/\n|\r/g)
         .map(s => `<span class="${cnLine}">${s}</span>`)
         .join(newLineReplacement);
+    }
+
+    // Map value to component if valueToComponent is provided
+    if (valueToComponent) {
+      const renderedComp = valueToComponent(val);
+
+      // Render this to string since this is injected as html below
+      val = ReactDOMServer.renderToString(renderedComp);
     }
 
     if (item.inline) {
