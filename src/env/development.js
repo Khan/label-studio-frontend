@@ -77,7 +77,9 @@ import { ClassificationMixed } from '../examples/classification_mixed';
  */
 // import { AllTypes } from "../examples/all_types";
 
-const data = RichTextTable;
+// CHANGEME: Edit the example you want below:
+const data = RichTextHtml;
+//const data = RichTextTable;
 
 function getData(task) {
   if (task && task.data) {
@@ -144,7 +146,6 @@ function rootElement(element) {
  * @param {object} params
  */
 function configureApplication(params) {
-
   const options = {
     settings: params.settings || {},
     alert: m => console.log(m), // Noop for demo: window.alert(m)

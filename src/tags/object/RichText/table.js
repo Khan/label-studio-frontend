@@ -6,7 +6,9 @@
 
 import React from 'react';
 import { inject, observer } from 'mobx-react';
+import { types } from 'mobx-state-tree';
 
+import { RichTextModel } from './model';
 import { RichTextPieceView } from './view';
 
 const renderTableValue = (val) => {
@@ -48,3 +50,5 @@ export const TableText = ({ isText = false } = {}) => {
     return <RPTV {...props} isText={isText} valueToComponent={renderTableValue}/>;
   }));
 };
+
+export const TableTextModel = types.compose('TableTextModel', RichTextModel);
