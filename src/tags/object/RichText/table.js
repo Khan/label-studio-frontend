@@ -23,7 +23,7 @@ import { cn } from '../../../utils/bem';
 
 import './RichText.styl';
 import { RichTextModel } from './model';
-import { RichTextPieceView } from './view';
+import { HtxRichText } from './view';
 
 const renderTableValue = (val) => {
   let conversations = [];
@@ -56,14 +56,12 @@ const renderTableValue = (val) => {
   return <div>{rowElems}</div>;
 };
 
-const storeInjector = inject('store');
-
-const RPTV = storeInjector(observer(RichTextPieceView));
-
-export const TableText = ({ isText = false } = {}) => {
-  return storeInjector(observer(props => (
-    <RPTV {...props} isText={isText} valueToComponent={renderTableValue} alwaysInline={true} />
-  )));
-};
+export const TableText = () => (
+  HtxRichText({
+    isText: false,
+    valueToComponent: renderTableValue,
+    alwaysInline: true,
+  })
+);
 
 export const TableTextModel = types.compose('TableTextModel', RichTextModel);

@@ -15,7 +15,7 @@ import { observe } from 'mobx';
 const DBLCLICK_TIMEOUT = 450; // ms
 const DBLCLICK_RANGE = 5; // px
 
-export class RichTextPieceView extends Component {
+class RichTextPieceView extends Component {
   _regionSpanSelector = '.htx-highlight';
 
   loadingRef = React.createRef();
@@ -466,8 +466,10 @@ const storeInjector = inject('store');
 
 const RPTV = storeInjector(observer(RichTextPieceView));
 
-export const HtxRichText = ({ isText = false } = {}) => {
+export const HtxRichText = (
+  { isText = false, valueToComponent = null, alwaysInline = false } = {},
+) => {
   return storeInjector(observer(props => {
-    return <RPTV {...props} isText={isText} />;
+    return <RPTV {...props} isText={isText} valueToComponent={valueToComponent} alwaysInline={alwaysInline}/>;
   }));
 };
