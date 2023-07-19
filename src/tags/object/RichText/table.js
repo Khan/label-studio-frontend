@@ -21,6 +21,7 @@ import { inject, observer } from 'mobx-react';
 import { types } from 'mobx-state-tree';
 import { cn } from '../../../utils/bem';
 
+import './RichText.styl';
 import { RichTextModel } from './model';
 import { RichTextPieceView } from './view';
 
