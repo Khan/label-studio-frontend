@@ -1,7 +1,19 @@
 /**
- * A component inherits from RichText HyperText component to render a conversation.
+ * TableText component is a component which renders JSON data.
  *
- * This allows us to render the text in table format.
+ * The item data is expected to be JSON, which is then rendered in a speech
+ * bubble format.
+ *
+ * This injects a renderTableValue function into the RichTextPieceView component.
+ * Which allows us to convert the JSON data into HTML to allow us to directly
+ * reuse the annotation features already built into the RichTextPieceView component.
+ * Note that the focus on this is to minimize the editing / code copying from
+ * RichTextPieceView, and hence we added two new props to the RichTextPieceView:
+ *
+ * - valueToComponent: a function that converts the JSON value to a React component
+ * - alwaysInline: a boolean that indicates whether the component should always be inline
+ *   since otherwise the component is rendered in separate IFrame which makes
+ *   styling / LaTex rendering much more difficult.
  */
 
 import React from 'react';
@@ -18,25 +30,24 @@ const renderTableValue = (val) => {
   try {
     conversations = JSON.parse(val);
   } catch (e) {
-    const tdErrClass = cn('richtext', { elem: 'error-box' });
+    // Display red text box with error message
+    const errClass = cn('richtext', { elem: 'error-box' });
     const errMsg = `Couldn't parse JSON: ${e.message}`;
 
     console.error(errMsg);
-    // Display red text box with error message
-    return <div className={tdErrClass}>{errMsg}</div>;
+    return <div className={errClass}>{errMsg}</div>;
   }
 
-  const tdClass = cn('richtext', { elem: 'table-item' });
+  const itemClass = cn('richtext', { elem: 'table-item' });
 
-  // Loop through conversations and display each table item as a new table row
   const rowElems = conversations.map((conversation, index) => {
-    const question = conversation[1];
-    const answer = conversation[2];
+    const question = conversation[0];
+    const answer = conversation[1];
 
     return (
       <div key={`conversation-${index}`}>
-        <div className={tdClass}>{question}</div>
-        <div className={tdClass}>{answer}</div>
+        <div className={itemClass}>{question}</div>
+        <div className={itemClass}>{answer}</div>
       </div>
     );
   });
@@ -48,11 +59,10 @@ const storeInjector = inject('store');
 
 const RPTV = storeInjector(observer(RichTextPieceView));
 
-// TODO: injecting more items into the props
 export const TableText = ({ isText = false } = {}) => {
-  return storeInjector(observer(props => {
-    return <RPTV {...props} isText={isText} valueToComponent={renderTableValue} alwaysInline={true} />;
-  }));
+  return storeInjector(observer(props => (
+    <RPTV {...props} isText={isText} valueToComponent={renderTableValue} alwaysInline={true} />
+  )));
 };
 
 export const TableTextModel = types.compose('TableTextModel', RichTextModel);
