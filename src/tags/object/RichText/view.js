@@ -158,11 +158,11 @@ export class RichTextPieceView extends Component {
   _moveStyles = moveStylesBetweenHeadTags;
 
   _moveElementsToWorkingNode = () => {
-    const { item } = this.props;
+    const { item, alwaysInline } = this.props;
     const rootEl = item.visibleNodeRef.current;
     const workingEl = item.workingNodeRef.current;
 
-    if (item.inline) {
+    if (alwaysInline || item.inline) {
       this._moveElements(rootEl, workingEl, true);
     } else {
       const rootHtml = rootEl.contentDocument.documentElement;
@@ -179,11 +179,11 @@ export class RichTextPieceView extends Component {
   };
 
   _returnElementsFromWorkingNode = () => {
-    const { item } = this.props;
+    const { item, alwaysInline } = this.props;
     const rootEl = item.visibleNodeRef.current;
     const workingEl = item.workingNodeRef.current;
 
-    if (item.inline) {
+    if (alwaysInline || item.inline) {
       this._moveElements(workingEl, rootEl);
     } else {
       const rootHtml = rootEl.contentDocument.documentElement;
@@ -204,11 +204,11 @@ export class RichTextPieceView extends Component {
    * Handle initial rendering and all subsequent updates
    */
   _handleUpdate(initial = false) {
-    const { item } = this.props;
+    const { item, alwaysInline } = this.props;
     const rootEl = item.visibleNodeRef.current;
     const root = rootEl?.contentDocument?.body ?? rootEl;
 
-    if (!item.inline) {
+    if (!(alwaysInline || item.inline)) {
       if (!root || root.tagName === 'IFRAME' || !root.childNodes.length || item.isLoaded === false) return;
     }
 
@@ -243,14 +243,14 @@ export class RichTextPieceView extends Component {
   }
 
   componentDidMount() {
-    const { item } = this.props;
+    const { item, alwaysInline } = this.props;
 
     item.setNeedsUpdateCallbacks(
       this._moveElementsToWorkingNode,
       this._returnElementsFromWorkingNode,
     );
 
-    if (!item.inline) {
+    if (!(alwaysInline || item.inline)) {
       this.dispose = observe(item, '_isReady', this.updateLoadingVisibility, true);
     }
   }
@@ -346,7 +346,7 @@ export class RichTextPieceView extends Component {
   };
 
   render() {
-    const { item, valueToComponent } = this.props;
+    const { item, valueToComponent, alwaysInline } = this.props;
 
     if (!item._value) return null;
 
@@ -354,7 +354,6 @@ export class RichTextPieceView extends Component {
     const newLineReplacement = '<br/>';
     const settings = this.props.store.settings;
     const isText = item.type === 'text';
-    let useInline = item.inline;
 
     if (isText) {
       const cnLine = cn('richtext', { elem: 'line' });
@@ -367,15 +366,13 @@ export class RichTextPieceView extends Component {
 
     // Map value to component if valueToComponent is provided
     if (valueToComponent) {
-      // We want to use inline since likely we have more styling associated with this
-      useInline = true;
       const renderedComp = valueToComponent(val);
 
       // Render this to string since this is injected as html below
       val = ReactDOMServer.renderToString(renderedComp);
     }
 
-    if (useInline) {
+    if (alwaysInline || item.inline) {
       const eventHandlers = {
         onClickCapture: this._onRegionClick,
         onMouseUp: this._onMouseUp,

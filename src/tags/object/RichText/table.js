@@ -51,7 +51,7 @@ const RPTV = storeInjector(observer(RichTextPieceView));
 // TODO: injecting more items into the props
 export const TableText = ({ isText = false } = {}) => {
   return storeInjector(observer(props => {
-    return <RPTV {...props} isText={isText} valueToComponent={renderTableValue}/>;
+    return <RPTV {...props} isText={isText} valueToComponent={renderTableValue} alwaysInline={true} />;
   }));
 };
 
