@@ -78,8 +78,8 @@ import { ClassificationMixed } from '../examples/classification_mixed';
 // import { AllTypes } from "../examples/all_types";
 
 // CHANGEME: Edit the example you want below:
-const data = RichTextHtml;
-//const data = RichTextTable;
+//const data = RichTextHtml;
+const data = RichTextTable;
 
 function getData(task) {
   if (task && task.data) {

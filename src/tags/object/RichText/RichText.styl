@@ -68,6 +68,22 @@
       &:empty
         background none // empty lines have broken height and almost zero width, so don't highlight
 
+  &__table-item
+    // This is roughly based on messageBubble style in webapp
+    padding 8px 16px
+    width: fit-content
+    min-height: fit-content
+    border: 1px solid rgba(33,36,44,0.16)
+    border-radius: 8px
+    word-wrap: break-word
+    margin-top: 16px
+
+    &:first-child
+      margin-left: auto
+
+  &__error-box
+    padding 8px 16px
+    background-color: pink
 
 // global.scss is not included to final build, so define it here
 :global(.htx-no-label)::after {

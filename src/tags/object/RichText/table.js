@@ -7,6 +7,7 @@
 import React from 'react';
 import { inject, observer } from 'mobx-react';
 import { types } from 'mobx-state-tree';
+import { cn } from '../../../utils/bem';
 
 import { RichTextModel } from './model';
 import { RichTextPieceView } from './view';
@@ -17,12 +18,15 @@ const renderTableValue = (val) => {
   try {
     conversations = JSON.parse(val);
   } catch (e) {
+    const tdErrClass = cn('richtext', { elem: 'error-box' });
     const errMsg = `Couldn't parse JSON: ${e.message}`;
 
     console.error(errMsg);
     // Display red text box with error message
-    return <div style={{ color: 'red' }}>{errMsg}</div>;
+    return <div className={tdErrClass}>{errMsg}</div>;
   }
+
+  const tdClass = cn('richtext', { elem: 'table-item' });
 
   // Loop through conversations and display each table item as a new table row
   const rowElems = conversations.map((conversation, index) => {
@@ -30,14 +34,14 @@ const renderTableValue = (val) => {
     const answer = conversation[2];
 
     return (
-      <tr key={`conversation-${index}`}>
-        <td>{question}</td>
-        <td>{answer}</td>
-      </tr>
+      <div key={`conversation-${index}`}>
+        <div className={tdClass}>{question}</div>
+        <div className={tdClass}>{answer}</div>
+      </div>
     );
   });
 
-  return <table>{rowElems}</table>;
+  return <div>{rowElems}</div>;
 };
 
 const storeInjector = inject('store');

@@ -354,6 +354,7 @@ export class RichTextPieceView extends Component {
     const newLineReplacement = '<br/>';
     const settings = this.props.store.settings;
     const isText = item.type === 'text';
+    let useInline = item.inline;
 
     if (isText) {
       const cnLine = cn('richtext', { elem: 'line' });
@@ -366,13 +367,15 @@ export class RichTextPieceView extends Component {
 
     // Map value to component if valueToComponent is provided
     if (valueToComponent) {
+      // We want to use inline since likely we have more styling associated with this
+      useInline = true;
       const renderedComp = valueToComponent(val);
 
       // Render this to string since this is injected as html below
       val = ReactDOMServer.renderToString(renderedComp);
     }
 
-    if (item.inline) {
+    if (useInline) {
       const eventHandlers = {
         onClickCapture: this._onRegionClick,
         onMouseUp: this._onMouseUp,
