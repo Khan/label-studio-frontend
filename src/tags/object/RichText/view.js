@@ -369,6 +369,10 @@ class RichTextPieceView extends Component {
       const renderedComp = valueToComponent(val);
 
       // Render this to string since this is injected as html below
+      //
+      // Safety note: valueToComponent function returns a JSX component,
+      // which already escaped the possible values injected, so we don't
+      // have concern here about XSS.
       val = ReactDOMServer.renderToString(renderedComp);
     }
 
