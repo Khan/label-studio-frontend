@@ -34,7 +34,7 @@ import ControlBase from './Base';
  */
 
 const Validation = types.model({
-  controlledTags: Types.unionTag(['HyperText']),
+  controlledTags: Types.unionTag(['HyperText', 'TableText']),
 });
 
 const ModelAttrs = types
