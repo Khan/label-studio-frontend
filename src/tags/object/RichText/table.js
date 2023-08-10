@@ -63,5 +63,4 @@ export const TableText = () => (
   })
 );
 
-// This essentially create a RichTextModel but with different name.
 export const TableTextModel = types.compose('TableTextModel', RichTextModel);

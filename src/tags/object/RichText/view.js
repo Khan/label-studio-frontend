@@ -33,9 +33,7 @@ class RichTextPieceView extends Component {
     while (walker.nextNode()) {
       const node = walker.currentNode;
 
-      // Note that containsNode(node, true) allow sub-elements to be selected
-      if (node.nodeName === 'SPAN' && node.matches(this._regionSpanSelector)
-          && selection.containsNode(node, true)) {
+      if (node.nodeName === 'SPAN' && node.matches(this._regionSpanSelector) && selection.containsNode(node)) {
         const region = this._determineRegion(node);
 
         regions.push(region);
