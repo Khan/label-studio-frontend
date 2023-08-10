@@ -282,5 +282,6 @@ const RichTextRegionModel = types.compose(
 Registry.addRegionType(RichTextRegionModel, 'text');
 Registry.addRegionType(RichTextRegionModel, 'hypertext');
 Registry.addRegionType(RichTextRegionModel, 'richtext');
+Registry.addRegionType(RichTextRegionModel, 'tabletext');
 
 export { RichTextRegionModel };

@@ -33,7 +33,9 @@ class RichTextPieceView extends Component {
     while (walker.nextNode()) {
       const node = walker.currentNode;
 
-      if (node.nodeName === 'SPAN' && node.matches(this._regionSpanSelector) && selection.containsNode(node)) {
+      // Note that containsNode(node, true) allow sub-elements to be selected
+      if (node.nodeName === 'SPAN' && node.matches(this._regionSpanSelector)
+          && selection.containsNode(node, true)) {
         const region = this._determineRegion(node);
 
         regions.push(region);
@@ -105,6 +107,8 @@ class RichTextPieceView extends Component {
    * @param {MouseEvent} event
    */
   _onRegionClick = event => {
+    // TODO (boris): Debugging
+    console.log(`_onRegionClick`, event.target);
     if (this._selectionMode) {
       this._selectionMode = false;
       return;
@@ -116,7 +120,12 @@ class RichTextPieceView extends Component {
 
     const region = this._determineRegion(event.target);
 
-    if (!region) return;
+    // TODO (boris): Debugging
+    // if (!region) return;
+    if (!region) {
+      console.warn(`No region found for click`);
+      return;
+    }
     region && region.onClickRegion(event);
     event.stopPropagation();
   };
@@ -125,6 +134,8 @@ class RichTextPieceView extends Component {
    * @param {MouseEvent} event
    */
   _onRegionMouseOver = event => {
+    // TODO (boris): Debugging
+    console.log(`_onRegionMouseOver`, event.target);
     const region = this._determineRegion(event.target);
     const { item } = this.props;
 

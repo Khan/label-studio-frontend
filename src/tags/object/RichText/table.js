@@ -17,7 +17,6 @@
  */
 
 import React from 'react';
-import { inject, observer } from 'mobx-react';
 import { types } from 'mobx-state-tree';
 import { cn } from '../../../utils/bem';
 
@@ -64,4 +63,12 @@ export const TableText = () => (
   })
 );
 
+// TODO: Another way to wrap RPTV
+// export const TableText = () => {
+//   return (props => {
+//     return <RPTV {...props} isText={false} valueToComponent={renderTableValue} alwaysInline={true}/>;
+//   });
+// };
+
+// This essentially create a RichTextModel but with different name.
 export const TableTextModel = types.compose('TableTextModel', RichTextModel);
