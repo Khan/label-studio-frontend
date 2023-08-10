@@ -1006,8 +1006,8 @@ export const Annotation = types
         if (tagNames.has(obj.from_name) && tagNames.has(obj.to_name)) {
           res.push(obj);
         }
-
-        // Insert image dimensions from result
+        
+        // Insert image dimensions from result 
         (() => {
           if (!isDefined(obj.original_width)) return;
           if (!tagNames.has(obj.to_name)) return;
@@ -1016,7 +1016,7 @@ export const Annotation = types
 
           if (tag.type !== 'image') return;
 
-          const imageEntity = tag.findImageEntity(obj.item_index ?? 0);
+          const imageEntity = tag.findImageEntity(obj.item_index ?? 0); 
 
           if (!imageEntity) return;
 

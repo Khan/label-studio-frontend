@@ -460,7 +460,7 @@ export default types.model('RegionStore', {
       self.regions.forEach((region) => region.filtered && region.toggleFiltered());
     } else {
       const filteredIds = filter.map((filter) => filter.id);
-
+      
       self.filter = filter;
 
       self.regions.forEach((region) => {

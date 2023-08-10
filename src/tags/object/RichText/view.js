@@ -107,8 +107,6 @@ class RichTextPieceView extends Component {
    * @param {MouseEvent} event
    */
   _onRegionClick = event => {
-    // TODO (boris): Debugging
-    console.log(`_onRegionClick`, event.target);
     if (this._selectionMode) {
       this._selectionMode = false;
       return;
@@ -120,12 +118,7 @@ class RichTextPieceView extends Component {
 
     const region = this._determineRegion(event.target);
 
-    // TODO (boris): Debugging
-    // if (!region) return;
-    if (!region) {
-      console.warn(`No region found for click`);
-      return;
-    }
+    if (!region) return;
     region && region.onClickRegion(event);
     event.stopPropagation();
   };
@@ -134,8 +127,6 @@ class RichTextPieceView extends Component {
    * @param {MouseEvent} event
    */
   _onRegionMouseOver = event => {
-    // TODO (boris): Debugging
-    console.log(`_onRegionMouseOver`, event.target);
     const region = this._determineRegion(event.target);
     const { item } = this.props;
 
