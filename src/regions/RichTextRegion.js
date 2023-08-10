@@ -8,6 +8,7 @@ import RegionsMixin from '../mixins/Regions';
 import { RichTextModel } from '../tags/object/RichText/model';
 import { findRangeNative, rangeToGlobalOffset } from '../utils/selection-tools';
 import { isDefined } from '../utils/utilities';
+import { TableTextModel } from '../tags/object/RichText/table';
 
 const GlobalOffsets = types.model('GlobalOffset', {
   start: types.number,
@@ -26,7 +27,7 @@ const GlobalOffsets = types.model('GlobalOffset', {
 const Model = types
   .model('RichTextRegionModel', {
     type: 'richtextregion',
-    object: types.late(() => types.reference(RichTextModel)),
+    object: types.late(() => types.reference(TableTextModel, RichTextModel)),
 
     startOffset: types.integer,
     endOffset: types.integer,
