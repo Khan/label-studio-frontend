@@ -28,6 +28,9 @@ import { HtxRichText } from './view';
 // Note: We use a different marker than what is used in Khanmigo.
 const MAJX_MARKER = '$';
 
+// Extract math from conversation
+// Khanmigo uses "\(.*?\)" as the marker for math
+// TODO: only extract first match at the moment
 const extractMath = (str) => {
   const match = str.match(/\\\((.*?)\\\)/i);
 
@@ -53,6 +56,7 @@ const renderTableValue = (val) => {
   const questionItemClass = cn('richtext', { elem: 'table-item', mod: { qa : 'question' } });
   const mathItemClass = cn('richtext', { elem: 'table-item', mod: { context: 'math' } });
   const questionMathItemClass = cn('richtext', { elem: 'table-item', mod: { qa : 'question', context: 'math' } });
+  let hasMath = false;
 
   const rowElems = conversations.map((conversation, index) => {
     const question = conversation[0];
@@ -64,9 +68,11 @@ const renderTableValue = (val) => {
 
     if (mathQuestion) {
       mathQuestionComponent = <MathJax className={questionMathItemClass}>{MAJX_MARKER + mathQuestion + MAJX_MARKER}</MathJax>;
+      hasMath = true;
     }
     if (mathAnswer) {
       mathAnswerComponent = <MathJax className={mathItemClass}>{MAJX_MARKER + mathAnswer + MAJX_MARKER}</MathJax>;
+      hasMath = true;
     }
 
     return (
@@ -78,7 +84,6 @@ const renderTableValue = (val) => {
       </div>
     );
   });
-  const hasMath = true;
 
   if (hasMath) {
     const mathJaxConfig = {
