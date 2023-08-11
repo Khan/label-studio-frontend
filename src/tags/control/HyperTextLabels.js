@@ -33,7 +33,7 @@ import ControlBase from './Base';
  * @param {boolean} [showInline=true]        - Show labels in the same visual line
  */
 
-// KA NOTE: used by ConfigValidtor to valideate the Config tag of the "to" attr
+// KA NOTE: used by ConfigValidator to validate the Config tag of the "to" attr
 const Validation = types.model({
   controlledTags: Types.unionTag(['HyperText', 'TableText']),
 });
