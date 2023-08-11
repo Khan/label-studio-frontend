@@ -30,7 +30,7 @@ const Model = types
     // Mobx use this info to infer the type of the Region.
     // KA NOTE: this is the view_model that created the region.
     //   add reference here if you add additional view_models that uses this
-    object: types.late(() => types.reference(TableTextModel, RichTextModel)),
+    object: types.late(() => types.reference(types.union(TableTextModel, RichTextModel))),
 
     startOffset: types.integer,
     endOffset: types.integer,
