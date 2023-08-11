@@ -46,20 +46,21 @@ jobs:
     with:
       sha: ${{ github.event.pull_request.head.sha || github.event.after }}
 
-  run_functional:
-    name: "Tests"
-    if: github.event_name == 'push' || github.event.pull_request.draft == false
-    uses: ./.github/workflows/fun_tests.yml
-    needs:
-      - build_for_coverage
-    with:
-      sha: ${{ github.event.pull_request.head.sha || github.event.after }}
-    secrets: inherit
+  # KA NOTE: disable this since this requires special secret (commented for upstream reference)
+  # run_functional:
+  #   name: "Tests"
+  #   if: github.event_name == 'push' || github.event.pull_request.draft == false
+  #   uses: ./.github/workflows/fun_tests.yml
+  #   needs:
+  #     - build_for_coverage
+  #   with:
+  #     sha: ${{ github.event.pull_request.head.sha || github.event.after }}
+  #   secrets: inherit
 
   run_unit:
     name: "Tests"
     if: github.event_name == 'push' || github.event.pull_request.draft == false
-    uses: ./.github/workflows/unit_tests.yml 
+    uses: ./.github/workflows/unit_tests.yml
     with:
       sha: ${{ github.event.pull_request.head.sha || github.event.after }}
 
