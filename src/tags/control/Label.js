@@ -60,7 +60,7 @@ const TagAttrs = types.model({
   size: types.optional(types.string, 'medium'),
   background: types.optional(customTypes.color, Constants.LABEL_BACKGROUND),
   selectedcolor: types.optional(customTypes.color, '#ffffff'),
-  granularity: types.maybeNull(types.enumeration(['symbol', 'word', 'sentence', 'paragraph'])),
+  granularity: types.maybeNull(types.enumeration(['symbol', 'word', 'sentence', 'paragraph', 'div'])),
   groupcancontain: types.maybeNull(types.string),
   // childrencheck: types.optional(types.enumeration(["any", "all"]), "any")
   ...(isFF(FF_DEV_2128) ? { html: types.maybeNull(types.string) } : {}),
@@ -174,7 +174,7 @@ const Model = types.model({
       if (labels.type === 'labels') return true; // universal labels are fine to select
       if (labels.type.includes(region.type.replace(/region$/, ''))) return true; // region type is in label type
       if (labels.type.includes(region.results[0].type)) return true; // any result type of the region is in label type
-      
+
       return false;
     });
 

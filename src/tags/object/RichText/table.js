@@ -28,14 +28,16 @@ import { HtxRichText } from './view';
 // Note: We use a different marker than what is used in Khanmigo.
 const MAJX_MARKER = '$';
 
-// Extract math from conversation
+// Extract math from conversation, alternate between math and non-math
 // Khanmigo uses "\(.*?\)" as the marker for math
-// TODO: only extract first match at the moment
-const extractMaths = (str) => {
-  const match = Array.from(str.matchAll(/\\\((.*?)\\\)/g));
+// For example, "What is \(2 + 2\)?" will split into ["What is ", "2 + 2", "?"]
+const parseConvoWithMath = (str) => {
+  // About the capture group:  a cool behaviour of str.split is that if there's
+  // capturing group, the group is captured into the group, which is perfect
+  // for us!
+  const mathRegex = /\\\((.*?)\\\)/g;
 
-  if (!match.length) return null;
-  return match.map((m) => m[1]);
+  return str.split(mathRegex);
 };
 
 const renderTableValue = (val) => {
@@ -54,44 +56,60 @@ const renderTableValue = (val) => {
 
   const itemClass = cn('richtext', { elem: 'table-item' });
   const questionItemClass = cn('richtext', { elem: 'table-item', mod: { qa : 'question' } });
-  const mathItemClass = cn('richtext', { elem: 'table-item', mod: { context: 'math' } });
-  const questionMathItemClass = cn('richtext', { elem: 'table-item', mod: { qa : 'question', context: 'math' } });
   let hasMath = false;
 
   const rowElems = conversations.map((conversation, index) => {
     const question = conversation[0];
     const answer = conversation[1];
-    const mathQuestions = extractMaths(question);
-    const mathAnswers = extractMaths(answer);
+    const mathQuestions = parseConvoWithMath(question);
+    const mathAnswers = parseConvoWithMath(answer);
     let mathQuestionComponent = null;
     let mathAnswerComponent = null;
 
-    const renderAllMathJax = (maths) => (
-      maths.map((equation, i) => <MathJax key={`eq-${i}`}>{MAJX_MARKER + equation + MAJX_MARKER}</MathJax>)
+    // Render an alternate list between Math and non-math expressions
+    const renderAllMathJax = (convoAndMathList) => (
+      convoAndMathList.map((convo, i) => {
+        if (i % 2 === 0) {
+          // Non math
+          return <span key={`eq=${i}`}>{convo}</span>;
+        } else {
+          // So for Math, we need to create a span as we want 2 piece of dom:
+          // 1. The hidden raw MathJax expression, to allow slot Label to work
+          // 2. A marked MathJax expression that allows <MathJax/> to render
+          return (
+            <span key={`eq-${i}`}>
+              <span style={{ 'display': 'none' }}>{'\\(' + convo + '\\)'}</span>
+              <span data-skip-select='1'>{MAJX_MARKER + convo + MAJX_MARKER}</span>
+            </span>
+          );
+        }
+      })
     );
 
-    if (mathQuestions) {
+    if (mathQuestions.length > 1) {
       mathQuestionComponent = (
-        <div className={questionMathItemClass}>
-          {renderAllMathJax(mathQuestions)}
+        <div className={questionItemClass}>
+          <MathJax>{renderAllMathJax(mathQuestions)}</MathJax>
         </div>
       );
       hasMath = true;
+    } else {
+      mathQuestionComponent = <div className={questionItemClass}>{question}</div>;
     }
-    if (mathAnswers) {
+    if (mathAnswers.length > 1) {
       mathAnswerComponent = (
-        <div className={mathItemClass}>
-          {renderAllMathJax(mathAnswers)}
+        <div className={itemClass}>
+          <MathJax>{renderAllMathJax(mathAnswers)}</MathJax>
         </div>
       );
       hasMath = true;
+    } else {
+      mathAnswerComponent = <div className={itemClass}>{answer}</div>;
     }
 
     return (
       <div key={`conversation-${index}`}>
-        <div className={questionItemClass}>{question}</div>
         {mathQuestionComponent}
-        <div className={itemClass}>{answer}</div>
         {mathAnswerComponent}
       </div>
     );
@@ -113,10 +131,23 @@ const renderTableValue = (val) => {
   return <div>{rowElems}</div>;
 };
 
+// We need to trigger MathJax typeset after the component is mounted
+// See https://docs.mathjax.org/en/latest/advanced/typeset.html
+const triggerMathJaxTypeset = () => {
+  setTimeout(() => {
+    // TODO: this is a hacky way to trigger MathJax typeset
+    // The official way is to useContext(MathJaxBaseContext) but we are not
+    // composing the component here.
+    window?.MathJax?.typeset();
+  });
+};
+
 export const TableText = () => (
   HtxRichText({
     isText: false,
     valueToComponent: renderTableValue,
+    // TODO: do we need this to re-render?
+    // didMountCallback: triggerMathJaxTypeset,
     alwaysInline: true,
   })
 );

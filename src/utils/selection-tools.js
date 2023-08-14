@@ -1,5 +1,6 @@
 import { clamp, isDefined } from './utilities';
 import { FF_LSDV_4620_3, isFF } from './feature-flags';
+import { first, last } from 'strman';
 
 export const isTextNode = node => node && node.nodeType === Node.TEXT_NODE;
 
@@ -170,6 +171,61 @@ const closestBoundarySelection = (selection, boundary) => {
   return selection;
 };
 
+/**
+ * Modify selection to be a boundary to be of parent element with tagName
+ */
+const changeBoundaryToElement = (selection, tagName) => {
+  const {
+    startOffset,
+    startContainer,
+    endOffset,
+    endContainer,
+    firstSymbol,
+    prevSymbol,
+    lastSymbol,
+    nextSymbol,
+  } = destructSelection(selection);
+
+  // find parent of startContainer with tagName
+  const upperCaseTagName = tagName.toUpperCase();
+  let parent = startContainer;
+
+  while (parent && parent.tagName !== upperCaseTagName) {
+    parent = parent.parentNode;
+  }
+  if (!parent) {
+    return;
+  }
+  // Find the first textChild and last, and extent the selections
+  // See doc at: https://developer.mozilla.org/en-US/docs/Web/API/
+  // Note we cannot simply do selectAllChilren, as the selection object
+  // expects multiple range with each range to be a text node.
+  // selection.selectAllChildren(parent);
+  const walker = parent.ownerDocument.createTreeWalker(parent, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
+  let firstTextChild = null;
+  let lastTextChild = null;
+  let currentNode = walker.nextNode();
+  let skipContainer = null;
+
+  while (currentNode) {
+    // check if we are in a skip element - if so skip elements within it.
+    if (currentNode.nodeType === Node.ELEMENT_NODE && currentNode.getAttribute('data-skip-select')) {
+      skipContainer = currentNode;
+      while (skipContainer.contains(currentNode)) {
+        currentNode = walker.nextNode();
+      }
+      continue;
+    }
+
+    if (firstTextChild === null) firstTextChild = currentNode;
+    lastTextChild = currentNode;
+
+    currentNode = walker.nextNode();
+  }
+  selection.setPosition(firstTextChild);
+  selection.extend(lastTextChild, lastTextChild.length);
+};
+
 const boundarySelection = (selection, boundary) => {
   const wordBoundary = boundary !== 'symbol';
   const {
@@ -262,13 +318,16 @@ const applyTextGranularity = (selection, granularity) => {
       case 'paragraph':
         boundarySelection(selection, 'paragraphboundary');
         return;
+      case 'div':
+        changeBoundaryToElement(selection, 'div');
+        return;
       case 'charater':
       case 'symbol':
       default:
         return;
     }
-  } catch {
-    console.warn('Probably, you\'re using browser that doesn\'t support granularity.');
+  } catch (e) {
+    console.warn('Probably, you\'re using browser that doesn\'t support granularity.', e);
   }
 };
 
@@ -710,6 +769,24 @@ const findGlobalOffset = (node, position, root) => {
     const atTargetNode = node === currentNode || currentNode.contains(node);
     const isText = currentNode.nodeType === Node.TEXT_NODE;
     const isBR = currentNode.nodeName === 'BR';
+
+    // if the current node have skip_select attribute, we should skip it
+    const isSkipSelect = currentNode.nodeType === Node.ELEMENT_NODE && currentNode.getAttribute('data-skip-select');
+
+    // Skip MathJax generated nodes, jump to next node (i.e. lastChild's next)
+    if (isSkipSelect) {
+      const ignoreContainer = currentNode;
+
+      // Keep checking the next of lastChild is not part of the container
+      // Note this will end if currentNode = null, which is what we want.
+      while (ignoreContainer.contains(currentNode)) {
+        currentNode = walker.nextNode();
+        // Note: the nodeReached can be within the ignore container, so we need
+        // to check here.
+        nodeReached = nodeReached || node === currentNode;
+      }
+      continue;
+    }
 
     // Stop iteration
     // Break if we passed target node and current node

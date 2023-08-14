@@ -237,7 +237,7 @@ class RichTextPieceView extends Component {
    */
   _determineRegion(element) {
     const spanSelector = isFF(FF_LSDV_4620_3) ? this._regionVisibleSpanSelector : this._regionSpanSelector;
-    
+
     if (matchesSelector(element, spanSelector)) {
       const span = element.tagName === 'SPAN' && (!isFF(FF_LSDV_4620_3) || element.matches(spanSelector)) ? element : element.closest(spanSelector);
       const { item } = this.props;
@@ -247,13 +247,17 @@ class RichTextPieceView extends Component {
   }
 
   componentDidMount() {
-    const { item, alwaysInline } = this.props;
+    const { item, alwaysInline, didMountCallback } = this.props;
 
     if (!isFF(FF_LSDV_4620_3)) {
       item.setNeedsUpdateCallbacks(
         this._moveElementsToWorkingNode,
         this._returnElementsFromWorkingNode,
       );
+    }
+
+    if (didMountCallback) {
+      didMountCallback(item);
     }
 
     if (!(alwaysInline || item.inline)) {
@@ -484,9 +488,12 @@ const storeInjector = inject('store');
 const RPTV = storeInjector(observer(RichTextPieceView));
 
 export const HtxRichText = (
-  { isText = false, valueToComponent = null, alwaysInline = false } = {},
+  { isText = false, valueToComponent = null, alwaysInline = false, didMountCallback = null } = {},
 ) => {
   return storeInjector(observer(props => {
-    return <RPTV {...props} isText={isText} valueToComponent={valueToComponent} alwaysInline={alwaysInline}/>;
+    return (
+      <RPTV {...props} isText={isText} alwaysInline={alwaysInline}
+        valueToComponent={valueToComponent} didMountCallback={didMountCallback} />
+    );
   }));
 };

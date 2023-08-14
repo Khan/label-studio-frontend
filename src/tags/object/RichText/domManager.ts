@@ -92,9 +92,10 @@ class DDTextElement {
     elements.forEach(el => {
       fragment.appendChild(el.node);
     });
-    parent.replaceChild(dummyReplacer, node);
-    parent.replaceChild(fragment, dummyReplacer);
-
+    if (parent) {
+      parent.replaceChild(dummyReplacer, node);
+      parent.replaceChild(fragment, dummyReplacer);
+    }
     return elements;
   }
 
@@ -102,7 +103,9 @@ class DDTextElement {
     const { node } = this;
     const parent = node.parentNode as Node;
 
-    parent.removeChild(node);
+    if (parent) {
+      parent.removeChild(node);
+    }
   }
 
   mergeWith(elements: DDTextElement[]) {
@@ -461,6 +464,9 @@ class DomData {
   }
 
   findTextBlock(pos: number, avoid: 'start' | 'end' = 'start'): DDDynamicBlock | undefined {
+    // TODO: issue is that the start/End here only reflects the static start/end of the text block
+    // this does not represent the actual dynamic data that is happening!
+    // e.g. 99 should maps to ...
     const block = this.elements.find(el => (el instanceof DDDynamicBlock) && el.start <= pos && el.end >= pos && el[avoid] !== pos);
 
     if (isDefined(block)) {
@@ -633,7 +639,17 @@ export default class DomManager {
     while (currentNode) {
       const isText = currentNode.nodeType === Node.TEXT_NODE;
       const isBR = currentNode.nodeName === 'BR';
+      const isSkipSelect = currentNode.nodeType === Node.ELEMENT_NODE && currentNode.getAttribute('data-skip-select');
 
+      if (isSkipSelect) {
+        const ignoreContainer = currentNode;
+
+        // Skip out of the container, to ensure that we don't process anything
+        // inside it.
+        while (ignoreContainer.contains(currentNode)) {
+          currentNode = this.nextStep();
+        }
+      }
       if (isText) {
         domData.addTextElement(currentNode as Text, this.currentPath);
       } else if (isBR) {
