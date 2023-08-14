@@ -18,7 +18,7 @@
 
 import React from 'react';
 import { types } from 'mobx-state-tree';
-import { MathJaxContext, MathJax } from 'better-react-mathjax';
+import { MathJax, MathJaxContext } from 'better-react-mathjax';
 import { cn } from '../../../utils/bem';
 
 import './RichText.styl';
@@ -31,11 +31,11 @@ const MAJX_MARKER = '$';
 // Extract math from conversation
 // Khanmigo uses "\(.*?\)" as the marker for math
 // TODO: only extract first match at the moment
-const extractMath = (str) => {
-  const match = str.match(/\\\((.*?)\\\)/i);
+const extractMaths = (str) => {
+  const match = Array.from(str.matchAll(/\\\((.*?)\\\)/g));
 
-  if (!match) return null;
-  return match[1];
+  if (!match.length) return null;
+  return match.map((m) => m[1]);
 };
 
 const renderTableValue = (val) => {
@@ -61,17 +61,29 @@ const renderTableValue = (val) => {
   const rowElems = conversations.map((conversation, index) => {
     const question = conversation[0];
     const answer = conversation[1];
-    const mathQuestion = extractMath(question);
-    const mathAnswer = extractMath(answer);
+    const mathQuestions = extractMaths(question);
+    const mathAnswers = extractMaths(answer);
     let mathQuestionComponent = null;
     let mathAnswerComponent = null;
 
-    if (mathQuestion) {
-      mathQuestionComponent = <MathJax className={questionMathItemClass}>{MAJX_MARKER + mathQuestion + MAJX_MARKER}</MathJax>;
+    const renderAllMathJax = (maths) => (
+      maths.map((equation, i) => <MathJax key={`eq-${i}`}>{MAJX_MARKER + equation + MAJX_MARKER}</MathJax>)
+    );
+
+    if (mathQuestions) {
+      mathQuestionComponent = (
+        <div className={questionMathItemClass}>
+          {renderAllMathJax(mathQuestions)}
+        </div>
+      );
       hasMath = true;
     }
-    if (mathAnswer) {
-      mathAnswerComponent = <MathJax className={mathItemClass}>{MAJX_MARKER + mathAnswer + MAJX_MARKER}</MathJax>;
+    if (mathAnswers) {
+      mathAnswerComponent = (
+        <div className={mathItemClass}>
+          {renderAllMathJax(mathAnswers)}
+        </div>
+      );
       hasMath = true;
     }
 
