@@ -1,0 +1,13 @@
+name: 'TEST: Scheduled sync to release branch'
+
+on:
+  # Allow manual syncing/testing.
+  workflow_dispatch:
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: |
+          echo 'Placeholder for testing'
