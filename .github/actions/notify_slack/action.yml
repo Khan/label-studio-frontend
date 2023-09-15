@@ -1,0 +1,20 @@
+name: Notify Slack on workflow failure
+description: notifies infrastructure-data-alerts channel on workflow failure.
+
+runs:
+  using: "composite"
+  steps:
+    - name: Notify slack on failure
+      if: failure()
+      uses: slackapi/slack-github-action@v1.23.0
+      with:
+        payload: |
+          {
+            "project": "${{ github.repository }}",
+            "workflow": "${{ github.workflow }}",
+            "status": "${{ job.status }}",
+            "build": "https://github.com/Khan/label-studio-frontend/actions/runs/${{ github.run_id }}"
+          }
+      env:
+        # Notifies the #infrastructure-data-alerts channel.
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
