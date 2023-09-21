@@ -1,6 +1,11 @@
 name: Notify Slack on workflow failure
 description: notifies infrastructure-data-alerts channel on workflow failure.
 
+inputs:
+  webhook_url:
+    description: "Slack webhook url"
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -17,4 +22,4 @@ runs:
           }
       env:
         # Notifies the #infrastructure-data-alerts channel.
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_WEBHOOK_URL: ${{ inputs.webhook_url }}

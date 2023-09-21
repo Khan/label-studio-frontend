@@ -1,16 +1,11 @@
-name: Sync PR LS
+name: Sync merged PR to Label Studio backend
 
 on:
   pull_request_target:
     types:
-      - opened
       - closed
-      - converted_to_draft
-      - ready_for_review
-      - synchronize
     branches:
       - master
-      - 'ls-release/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref }}
@@ -21,7 +16,7 @@ env:
 jobs:
   sync:
     name: "Sync"
-    if: startsWith(github.head_ref, 'fb-')
+    if: ${{ github.event.pull_request.merged }} == true
     runs-on: ubuntu-latest
     steps:
       - uses: hmarr/debug-action@v2.1.0
@@ -32,16 +27,14 @@ jobs:
         env:
           TITLE: ${{ github.event.pull_request.title }}
         with:
-          github-token: ${{ secrets.GIT_PAT }}
+          github-token: ${{ secrets.KHAN_ACTIONS_BOT_TOKEN }}
           script: |
             const { repo, owner } = context.repo;
             const [pr_owner, pr_repo] = '${{ github.event.pull_request.head.repo.full_name || github.repository }}'.split('/');
             let event_action = '${{ github.event.action }}'
             let commit_sha = '${{ github.event.pull_request.head.sha }}'
-            if (${{ github.event.pull_request.merged }}) {
-              event_action = 'merged'
-              commit_sha = '${{ github.sha }}'
-            }
+            event_action = 'merged'
+            commit_sha = '${{ github.sha }}'
             const getCommitResponse = await github.rest.repos.getCommit({
               owner: pr_owner,
               repo: pr_repo,
