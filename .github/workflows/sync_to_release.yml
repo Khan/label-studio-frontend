@@ -1,13 +1,33 @@
-name: 'TEST: Scheduled sync to release branch'
+name: 'Scheduled sync to release branch'
 
 on:
   # Allow manual syncing/testing.
   workflow_dispatch:
+  # Every Monday at 0600 UTC.
+  schedule:
+    - cron: '0 6 * * 1'
 
 jobs:
   dispatch:
     runs-on: ubuntu-latest
     steps:
-      - name: Placeholder
+      - name: Check out release branch
+        uses: actions/checkout@v3
+        with:
+          # uses the `khan-actions-bot` Khan Org level user which was granted
+          # permissions to override branch protections.
+          token: ${{ secrets.KHAN_ACTIONS_BOT_TOKEN }}
+          ref: release
+      - name: Merge master into release
         run: |
-          echo 'Placeholder for testing'
+          git config --global user.name 'khan-actions-bot'
+          git config --global user.email 'infrastructure-data@khanacademy.org'
+          git fetch --all --unshallow
+
+          git merge origin/master --no-edit -m 'Merge master into release branch in run id ${{github.run_id}}'
+          git push
+      - name: Notify Slack on failure
+        if: failure()
+        uses: ./.github/actions/notify_slack
+        with:
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
