@@ -92,10 +92,9 @@ class DDTextElement {
     elements.forEach(el => {
       fragment.appendChild(el.node);
     });
-    if (parent) {
-      parent.replaceChild(dummyReplacer, node);
-      parent.replaceChild(fragment, dummyReplacer);
-    }
+    parent.replaceChild(dummyReplacer, node);
+    parent.replaceChild(fragment, dummyReplacer);
+
     return elements;
   }
 
@@ -103,9 +102,7 @@ class DDTextElement {
     const { node } = this;
     const parent = node.parentNode as Node;
 
-    if (parent) {
-      parent.removeChild(node);
-    }
+    parent.removeChild(node);
   }
 
   mergeWith(elements: DDTextElement[]) {
@@ -464,9 +461,6 @@ class DomData {
   }
 
   findTextBlock(pos: number, avoid: 'start' | 'end' = 'start'): DDDynamicBlock | undefined {
-    // TODO: issue is that the start/End here only reflects the static start/end of the text block
-    // this does not represent the actual dynamic data that is happening!
-    // e.g. 99 should maps to ...
     const block = this.elements.find(el => (el instanceof DDDynamicBlock) && el.start <= pos && el.end >= pos && el[avoid] !== pos);
 
     if (isDefined(block)) {
@@ -644,8 +638,7 @@ export default class DomManager {
       if (isSkipSelect) {
         const ignoreContainer = currentNode;
 
-        // Skip out of the container, to ensure that we don't process anything
-        // inside it.
+        // Ignore all nodes within the container
         while (ignoreContainer.contains(currentNode)) {
           currentNode = this.nextStep();
         }
@@ -683,7 +676,10 @@ export default class DomManager {
     const text = String(selection);
 
     selection.removeAllRanges();
-    selection.removeRange(range);
+
+    // Firefox fix: This is removed as part of non-chromium browser fix
+    // https://github.com/HumanSignal/label-studio-frontend/pull/1540
+    // selection.removeRange(range);
 
     // restore previous selection
     for (const range of lastRanges) {

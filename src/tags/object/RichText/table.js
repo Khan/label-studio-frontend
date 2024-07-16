@@ -25,7 +25,10 @@ import './RichText.styl';
 import { RichTextModel } from './model';
 import { HtxRichText } from './view';
 
-// Note: We use a different marker than what is used in Khanmigo.
+// To allow us to render MathJax expressions, we need to use a marker
+// However we also want to keep the original \(expressions\), so we swap into
+// a differnet marker instead.
+// We use a different marker than what is used in Khanmigo.
 const MAJX_MARKER = '$';
 
 // Extract math from conversation, alternate between math and non-math
@@ -56,6 +59,7 @@ const renderTableValue = (val) => {
 
   const itemClass = cn('richtext', { elem: 'table-item' });
   const questionItemClass = cn('richtext', { elem: 'table-item', mod: { qa : 'question' } });
+  const answerItemClass = cn('richtext', { elem: 'table-item', mod: { qa : 'answer' } });
   let hasMath = false;
 
   const rowElems = conversations.map((conversation, index) => {
@@ -89,7 +93,7 @@ const renderTableValue = (val) => {
     if (mathQuestions.length > 1) {
       mathQuestionComponent = (
         <div className={questionItemClass}>
-          <MathJax>{renderAllMathJax(mathQuestions)}</MathJax>
+          <MathJax dynamic>{renderAllMathJax(mathQuestions)}</MathJax>
         </div>
       );
       hasMath = true;
@@ -98,13 +102,13 @@ const renderTableValue = (val) => {
     }
     if (mathAnswers.length > 1) {
       mathAnswerComponent = (
-        <div className={itemClass}>
-          <MathJax>{renderAllMathJax(mathAnswers)}</MathJax>
+        <div className={answerItemClass}>
+          <MathJax dynamic>{renderAllMathJax(mathAnswers)}</MathJax>
         </div>
       );
       hasMath = true;
     } else {
-      mathAnswerComponent = <div className={itemClass}>{answer}</div>;
+      mathAnswerComponent = <div className={answerItemClass}>{answer}</div>;
     }
 
     return (
@@ -135,19 +139,15 @@ const renderTableValue = (val) => {
 // See https://docs.mathjax.org/en/latest/advanced/typeset.html
 const triggerMathJaxTypeset = () => {
   setTimeout(() => {
-    // TODO: this is a hacky way to trigger MathJax typeset
-    // The official way is to useContext(MathJaxBaseContext) but we are not
-    // composing the component here.
     window?.MathJax?.typeset();
-  });
+  }, 100);
 };
 
 export const TableText = () => (
   HtxRichText({
     isText: false,
     valueToComponent: renderTableValue,
-    // TODO: do we need this to re-render?
-    // didMountCallback: triggerMathJaxTypeset,
+    didMountCallback: triggerMathJaxTypeset,
     alwaysInline: true,
   })
 );

@@ -74,7 +74,7 @@ const TagAttrs = types.model('RichTextModel', {
 
   encoding: types.optional(types.enumeration(['none', 'base64', 'base64unicode']), 'none'),
 
-  granularity: types.optional(types.enumeration(['symbol', 'word', 'sentence', 'paragraph', 'div']), 'symbol'),
+  granularity: types.optional(types.enumeration(['symbol', 'word', 'sentence', 'paragraph', 'div', 'parent_div']), 'symbol'),
 });
 
 const Model = types

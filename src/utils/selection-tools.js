@@ -173,8 +173,10 @@ const closestBoundarySelection = (selection, boundary) => {
 
 /**
  * Modify selection to be a boundary to be of parent element with tagName
+ * We will highlight the first and last text node within the parent element,
+ * which is expected from selection-tools.js as we convert this to an offset.
  */
-const changeBoundaryToElement = (selection, tagName) => {
+const changeBoundaryToElement = (selection, tagName, depth=1) => {
   const {
     startOffset,
     startContainer,
@@ -190,17 +192,15 @@ const changeBoundaryToElement = (selection, tagName) => {
   const upperCaseTagName = tagName.toUpperCase();
   let parent = startContainer;
 
-  while (parent && parent.tagName !== upperCaseTagName) {
+  for (let i = 0; i < depth; i++) {
     parent = parent.parentNode;
+    while (parent && parent.tagName !== upperCaseTagName) {
+      parent = parent.parentNode;
+    }
   }
   if (!parent) {
     return;
   }
-  // Find the first textChild and last, and extent the selections
-  // See doc at: https://developer.mozilla.org/en-US/docs/Web/API/
-  // Note we cannot simply do selectAllChilren, as the selection object
-  // expects multiple range with each range to be a text node.
-  // selection.selectAllChildren(parent);
   const walker = parent.ownerDocument.createTreeWalker(parent, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
   let firstTextChild = null;
   let lastTextChild = null;
@@ -208,7 +208,8 @@ const changeBoundaryToElement = (selection, tagName) => {
   let skipContainer = null;
 
   while (currentNode) {
-    // check if we are in a skip element - if so skip elements within it.
+    // skip any elements iwthin `data-skip-select`, which might be added by
+    // other dynamic rendering (e.g. MathJax)
     if (currentNode.nodeType === Node.ELEMENT_NODE && currentNode.getAttribute('data-skip-select')) {
       skipContainer = currentNode;
       while (skipContainer.contains(currentNode)) {
@@ -320,6 +321,9 @@ const applyTextGranularity = (selection, granularity) => {
         return;
       case 'div':
         changeBoundaryToElement(selection, 'div');
+        return;
+      case 'parent_div':
+        changeBoundaryToElement(selection, 'div', 2);
         return;
       case 'charater':
       case 'symbol':

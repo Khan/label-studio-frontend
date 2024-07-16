@@ -3,6 +3,7 @@
     <Label value="Paragraph" granularity="paragraph"></Label>
     <Label value="Word" granularity="word"></Label>
     <Label value="Div" granularity="div"></Label>
+    <Label value="Interaction" granularity="parent_div"></Label>
   </HyperTextLabels>
   <TableText name="text" value="$text"></TableText>
 </View>
