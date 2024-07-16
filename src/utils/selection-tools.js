@@ -1,6 +1,5 @@
 import { clamp, isDefined } from './utilities';
 import { FF_LSDV_4620_3, isFF } from './feature-flags';
-import { first, last } from 'strman';
 
 export const isTextNode = node => node && node.nodeType === Node.TEXT_NODE;
 
@@ -178,14 +177,7 @@ const closestBoundarySelection = (selection, boundary) => {
  */
 const changeBoundaryToElement = (selection, tagName, depth=1) => {
   const {
-    startOffset,
     startContainer,
-    endOffset,
-    endContainer,
-    firstSymbol,
-    prevSymbol,
-    lastSymbol,
-    nextSymbol,
   } = destructSelection(selection);
 
   // find parent of startContainer with tagName
