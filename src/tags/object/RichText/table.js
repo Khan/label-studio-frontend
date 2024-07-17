@@ -57,7 +57,6 @@ const renderTableValue = (val) => {
     return <div className={errClass}>{errMsg}</div>;
   }
 
-  const itemClass = cn('richtext', { elem: 'table-item' });
   const questionItemClass = cn('richtext', { elem: 'table-item', mod: { qa : 'question' } });
   const answerItemClass = cn('richtext', { elem: 'table-item', mod: { qa : 'answer' } });
   let hasMath = false;
