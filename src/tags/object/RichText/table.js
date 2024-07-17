@@ -96,7 +96,7 @@ const renderTableValue = (val) => {
         </div>
       );
       hasMath = true;
-    } else {
+    } else if (question) {
       mathQuestionComponent = <div className={questionItemClass}>{question}</div>;
     }
     if (mathAnswers.length > 1) {
@@ -106,7 +106,7 @@ const renderTableValue = (val) => {
         </div>
       );
       hasMath = true;
-    } else {
+    } else if (answer){
       mathAnswerComponent = <div className={answerItemClass}>{answer}</div>;
     }
 
