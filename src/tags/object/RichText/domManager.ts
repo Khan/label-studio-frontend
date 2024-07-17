@@ -677,10 +677,6 @@ export default class DomManager {
 
     selection.removeAllRanges();
 
-    // Firefox fix: This is removed as part of non-chromium browser fix
-    // https://github.com/HumanSignal/label-studio-frontend/pull/1540
-    // selection.removeRange(range);
-
     // restore previous selection
     for (const range of lastRanges) {
       selection.addRange(range);
