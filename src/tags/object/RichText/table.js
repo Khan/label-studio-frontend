@@ -136,9 +136,20 @@ const renderTableValue = (val) => {
 
 // We need to trigger MathJax typeset after the component is mounted
 // See https://docs.mathjax.org/en/latest/advanced/typeset.html
+// As the document suggest above, we need to ensure that only one typeSet
+// function is running at one time.  We use the promise to ensure that the
+// typeset is only run once at a time.
+let typesetPromise = null;
+
 const triggerMathJaxTypeset = () => {
   setTimeout(() => {
-    window?.MathJax?.typeset();
+    // This means that we already have a typeset running.
+    if (typesetPromise) return;
+
+    typesetPromise = window?.MathJax?.typesetPromise();
+    typesetPromise.finally(() => {
+      typesetPromise = null;
+    });
   }, 100);
 };
 
