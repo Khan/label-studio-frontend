@@ -146,6 +146,11 @@ const triggerMathJaxTypeset = () => {
     // This means that we already have a typeset running.
     if (typesetPromise) return;
 
+    // This means that this is first load, and we can wait for
+    // <MathJaxContext/> component to be ready and typeset, instead of doing
+    // this dynamically.
+    if (typeof window?.MathJax?.typesetPromise !== 'function') return;
+
     typesetPromise = window?.MathJax?.typesetPromise();
     typesetPromise.finally(() => {
       typesetPromise = null;
