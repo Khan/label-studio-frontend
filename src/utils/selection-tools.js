@@ -170,6 +170,55 @@ const closestBoundarySelection = (selection, boundary) => {
   return selection;
 };
 
+/**
+ * Modify selection to be a boundary to be of parent element with tagName
+ * We will highlight the first and last text node within the parent element,
+ * which is expected from selection-tools.js as we convert this to an offset.
+ */
+const changeBoundaryToElement = (selection, tagName, depth=1) => {
+  const {
+    startContainer,
+  } = destructSelection(selection);
+
+  // find parent of startContainer with tagName
+  const upperCaseTagName = tagName.toUpperCase();
+  let parent = startContainer;
+
+  for (let i = 0; i < depth; i++) {
+    parent = parent.parentNode;
+    while (parent && parent.tagName !== upperCaseTagName) {
+      parent = parent.parentNode;
+    }
+  }
+  if (!parent) {
+    return;
+  }
+  const walker = parent.ownerDocument.createTreeWalker(parent, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
+  let firstTextChild = null;
+  let lastTextChild = null;
+  let currentNode = walker.nextNode();
+  let skipContainer = null;
+
+  while (currentNode) {
+    // skip any elements iwthin `data-skip-select`, which might be added by
+    // other dynamic rendering (e.g. MathJax)
+    if (currentNode.nodeType === Node.ELEMENT_NODE && currentNode.getAttribute('data-skip-select')) {
+      skipContainer = currentNode;
+      while (skipContainer.contains(currentNode)) {
+        currentNode = walker.nextNode();
+      }
+      continue;
+    }
+
+    if (firstTextChild === null) firstTextChild = currentNode;
+    lastTextChild = currentNode;
+
+    currentNode = walker.nextNode();
+  }
+  selection.setPosition(firstTextChild);
+  selection.extend(lastTextChild, lastTextChild.length);
+};
+
 const boundarySelection = (selection, boundary) => {
   const wordBoundary = boundary !== 'symbol';
   const {
@@ -262,13 +311,19 @@ const applyTextGranularity = (selection, granularity) => {
       case 'paragraph':
         boundarySelection(selection, 'paragraphboundary');
         return;
+      case 'div':
+        changeBoundaryToElement(selection, 'div');
+        return;
+      case 'parent_div':
+        changeBoundaryToElement(selection, 'div', 2);
+        return;
       case 'charater':
       case 'symbol':
       default:
         return;
     }
-  } catch {
-    console.warn('Probably, you\'re using browser that doesn\'t support granularity.');
+  } catch (e) {
+    console.warn('Probably, you\'re using browser that doesn\'t support granularity.', e);
   }
 };
 
@@ -710,6 +765,24 @@ const findGlobalOffset = (node, position, root) => {
     const atTargetNode = node === currentNode || currentNode.contains(node);
     const isText = currentNode.nodeType === Node.TEXT_NODE;
     const isBR = currentNode.nodeName === 'BR';
+
+    // if the current node have skip_select attribute, we should skip it
+    const isSkipSelect = currentNode.nodeType === Node.ELEMENT_NODE && currentNode.getAttribute('data-skip-select');
+
+    // Skip MathJax generated nodes, jump to next node (i.e. lastChild's next)
+    if (isSkipSelect) {
+      const ignoreContainer = currentNode;
+
+      // Keep checking the next of lastChild is not part of the container
+      // Note this will end if currentNode = null, which is what we want.
+      while (ignoreContainer.contains(currentNode)) {
+        currentNode = walker.nextNode();
+        // Note: the nodeReached can be within the ignore container, so we need
+        // to check here.
+        nodeReached = nodeReached || node === currentNode;
+      }
+      continue;
+    }
 
     // Stop iteration
     // Break if we passed target node and current node

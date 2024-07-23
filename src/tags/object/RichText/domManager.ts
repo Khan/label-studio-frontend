@@ -633,7 +633,16 @@ export default class DomManager {
     while (currentNode) {
       const isText = currentNode.nodeType === Node.TEXT_NODE;
       const isBR = currentNode.nodeName === 'BR';
+      const isSkipSelect = currentNode.nodeType === Node.ELEMENT_NODE && currentNode.getAttribute('data-skip-select');
 
+      if (isSkipSelect) {
+        const ignoreContainer = currentNode;
+
+        // Ignore all nodes within the container
+        while (ignoreContainer.contains(currentNode)) {
+          currentNode = this.nextStep();
+        }
+      }
       if (isText) {
         domData.addTextElement(currentNode as Text, this.currentPath);
       } else if (isBR) {
