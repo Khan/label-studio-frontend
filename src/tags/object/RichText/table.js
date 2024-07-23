@@ -29,7 +29,7 @@ import { HtxRichText } from './view';
 // However we also want to keep the original \(expressions\), so we swap into
 // a differnet marker instead.
 // We use a different marker than what is used in Khanmigo.
-const MAJX_MARKER = '$';
+const MATHJAX_MARKER = '$';
 
 // Extract math from conversation, alternate between math and non-math
 // Khanmigo uses "\(.*?\)" as the marker for math
@@ -70,6 +70,8 @@ const renderTableValue = (val) => {
     let mathAnswerComponent = null;
 
     // Render an alternate list between Math and non-math expressions
+    // The list alternates between non-Math and Math expressions from
+    // `parseConvoWithMath`
     const renderAllMathJax = (convoAndMathList) => (
       convoAndMathList.map((convo, i) => {
         if (i % 2 === 0) {
@@ -82,7 +84,7 @@ const renderTableValue = (val) => {
           return (
             <span key={`eq-${i}`}>
               <span style={{ 'display': 'none' }}>{'\\(' + convo + '\\)'}</span>
-              <span data-skip-select='1'>{MAJX_MARKER + convo + MAJX_MARKER}</span>
+              <span data-skip-select='1'>{MATHJAX_MARKER + convo + MATHJAX_MARKER}</span>
             </span>
           );
         }
@@ -121,7 +123,7 @@ const renderTableValue = (val) => {
   if (hasMath) {
     const mathJaxConfig = {
       tex: {
-        inlineMath: [[MAJX_MARKER, MAJX_MARKER]],
+        inlineMath: [[MATHJAX_MARKER, MATHJAX_MARKER]],
       },
     };
 
