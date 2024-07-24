@@ -32,7 +32,7 @@ import { HtxRichText } from './view';
 const MATHJAX_MARKER = '$';
 
 // Extract math from conversation, alternate between math and non-math
-// Khanmigo uses "\(.*?\)" and  as the marker for math
+// Khanmigo uses "\(.*?\)" and "\[.*?\]" as the marker for math
 // For example, "What is \(2 + 2\)?" will split into ["What is ", "2 + 2", "?"]
 const parseConvoWithMath = (str) => {
   // About the capture group:  a cool behaviour of str.split is that if there's
