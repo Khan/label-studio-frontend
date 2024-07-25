@@ -31,7 +31,7 @@ const controlsInjector = inject(({ store }) => {
 
 export const Controls = controlsInjector(observer(({ store, history, annotation }) => {
   const isReview = store.hasInterface('review');
-  
+
   const historySelected = isDefined(store.annotationStore.selectedHistory);
   const { userGenerate, sentUserGenerate, versions, results, editable: annotationEditable } = annotation;
   const buttons = [];
@@ -40,10 +40,10 @@ export const Controls = controlsInjector(observer(({ store, history, annotation 
 
   const disabled = !annotationEditable || store.isSubmitting || historySelected || isInProgress;
   const submitDisabled = store.hasInterface('annotations:deny-empty') && results.length === 0;
-  
+
   const buttonHandler = useCallback(async (e, callback, tooltipMessage) => {
     const { addedCommentThisSession, currentComment, commentFormSubmit } = store.commentStore;
-    
+
     if (isInProgress) return;
     setIsInProgress(true);
     if(addedCommentThisSession){
@@ -57,10 +57,10 @@ export const Controls = controlsInjector(observer(({ store, history, annotation 
     }
     setIsInProgress(false);
   }, [
-    store.rejectAnnotation, 
-    store.skipTask, 
-    store.commentStore.currentComment, 
-    store.commentStore.commentFormSubmit, 
+    store.rejectAnnotation,
+    store.skipTask,
+    store.commentStore.currentComment,
+    store.commentStore.commentFormSubmit,
     store.commentStore.addedCommentThisSession,
     isInProgress,
   ]);
@@ -166,6 +166,16 @@ export const Controls = controlsInjector(observer(({ store, history, annotation 
 
       buttons.push(button);
     }
+
+    buttons.push(
+      <ButtonTooltip key="next" title="Next">
+        <Button aria-label="next" onClick={async () => {
+          store.nextTaskInList();
+        }}>
+          Next Task
+        </Button>
+      </ButtonTooltip>,
+    );
   }
 
   return (
