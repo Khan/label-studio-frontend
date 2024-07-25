@@ -138,9 +138,16 @@ const renderTableValue = (val) => {
 
 // We need to trigger MathJax typeset after the component is mounted
 // See https://docs.mathjax.org/en/latest/advanced/typeset.html
+//
 // As the document suggest above, we need to ensure that only one typeSet
 // function is running at one time.  We use the promise to ensure that the
 // typeset is only run once at a time.
+//
+// TODO: We should fix this in a better way.  This is executed via the useEffect
+// within the <MathJax/> component However as we are rendering the MathJax
+// component dynamically, somehow the useEffect is not triggered.  So we pass
+// this to componentDidMount of the RichTextPieceView component.  This is also
+// why the `renderMode=pre` would not work.
 let typesetPromise = null;
 
 const triggerMathJaxTypeset = () => {
@@ -153,10 +160,20 @@ const triggerMathJaxTypeset = () => {
     // this dynamically.
     if (typeof window?.MathJax?.typesetPromise !== 'function') return;
 
-    typesetPromise = window?.MathJax?.typesetPromise();
-    typesetPromise.finally(() => {
+    typesetPromise = window.MathJax.typesetPromise();
+
+    typesetPromise.catch((err) => {
+      console.error('MathJax Typeset failed:', err);
+      // We have seen this happen on Firefox, where the typeset fails.
+      // Best bet is to clear the typeset and try again.
+      window.MathJax.typesetClear();
+      typesetPromise = null;
+      triggerMathJaxTypeset();
+    }).then(() => {
+      console.log('MathJax Typeset success!');
       typesetPromise = null;
     });
+
   }, 100);
 };
 
