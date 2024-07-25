@@ -760,6 +760,9 @@ export default types
 
     // nextTask will only call the next task in taskHistroy.  We need to
     // invoke the next task in the whole task list.
+    //
+    // Note: the list only include the tasks that are shown in the datamanager
+    // table (e.g. in the currrent tab).
     function nextTaskInList() {
       // TODO: we should find better way to access the dataManager's Mobx Store
       const taskList = window.dataManager.store.taskStore.list;
