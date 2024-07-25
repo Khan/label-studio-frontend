@@ -22,7 +22,7 @@ import AnnotationStore from './Annotation/store';
 import Project from './ProjectStore';
 import Settings from './SettingsStore';
 import Task from './TaskStore';
-import { UserExtended } from './UserStore'; 
+import { UserExtended } from './UserStore';
 import { UserLabels } from './UserLabels';
 import { FF_DEV_1536, FF_DEV_2715, FF_LLM_EPIC, FF_LSDV_4620_3_ML, FF_LSDV_4998, isFF } from '../utils/feature-flags';
 import { CommentStore } from './Comment/CommentStore';
@@ -758,6 +758,23 @@ export default types
       await getEnv(self).events.invoke('nextTask');
     }
 
+    // nextTask will only call the next task in taskHistroy.  We need to
+    // invoke the next task in the whole task list.
+    //
+    // Note: the list only include the tasks that are shown in the datamanager
+    // table (e.g. in the currrent tab).
+    function nextTaskInList() {
+      // TODO: we should find better way to access the dataManager's Mobx Store
+      const taskList = window.dataManager.store.taskStore.list;
+      const thisTaskIdx = taskList.findIndex((x) => x.id === self.task.id);
+
+      if (thisTaskIdx === -1 || thisTaskIdx === taskList.length - 1) {
+        console.warn('nextTaskInList: No next task found!');
+        return;
+      }
+      getEnv(self).events.invoke('nextTask', taskList[thisTaskIdx + 1].id);
+    }
+
     function nextTask() {
       if (self.canGoNextTask) {
         const { taskId, annotationId } = self.taskHistory[self.taskHistory.findIndex((x) => x.taskId === self.task.id) + 1];
@@ -826,6 +843,7 @@ export default types
 
       addAnnotationToTaskHistory,
       nextTask,
+      nextTaskInList,
       prevTask,
       postponeTask,
       beforeDestroy() {
