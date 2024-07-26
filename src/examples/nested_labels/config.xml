@@ -1,0 +1,24 @@
+<View>
+  <Choices name="has_math_choice" toName="interaction" choice="single" showInLine="true">
+    <Choice value="This thread has math"/>
+    <Choice value="This thread does not have math"/>
+  </Choices>
+
+  <View style="top: 0; position: sticky; z-index: 5; background: white" visibleWhen="choice-selected" whenTagName="has_math_choice" whenChoiceValue="This thread has math">
+    <Labels name="interaction_correctness" toName="interaction">
+      <Label value="Correct" hotkey="c" hint="This statement is accurate and pedagogically sound" granularity="div" background="green"/>
+      <Label value="Incorrect: Khanmigo" hotkey="k" granularity="div" background="red"/>
+      <Label value="Incorrect: Student" hotkey="s" granularity="div" background="orange"/>
+    </Labels>
+  </View>
+
+  <View style="position: sticky; top: 32px; z-index: 5; background: white" visibleWhen="region-selected" whenTagName="interaction_correctness" whenLabelValue="Incorrect: Khanmigo">
+    <Labels name="khanmigo_incorrect_type" toName="interaction">
+      <Label alias="type-incorrect" value="Wrong calculation" hotkey="w" hint="Khanmigo calculates incorrectly, e.g. 2+2=5"  granularity="div" background="pink"/>
+      <Label alias="type-process" value="Wrong process" hotkey="p" hint="Khanmigo suggests a bad method, e.g. 'to find 2+2 you must divide'" granularity="div" background="purple"/>
+      <Label alias="type-other" value="Other" hotkey="o" hint="Use this label for any noteworthy issue that is not addressed by other labels; elaborate in Labeler Notes" granularity="div" background="blue"/>
+    </Labels>
+  </View>
+
+  <TableText name="interaction" value="$json_thread" granularity="word"/>
+</View>
