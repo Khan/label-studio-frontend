@@ -14,7 +14,6 @@ import { Sentiment } from '../examples/sentiment_analysis';
 import { Nested as NestedSimple } from '../examples/nested_choices';
 import { Nested } from '../examples/nested_choices/complicated';
 import { Dialogue } from '../examples/phrases';
-import { NestedLabels } from '../examples/nested_labels';
 
 /**
  * Audio/Video
@@ -80,7 +79,7 @@ import { ClassificationMixed } from '../examples/classification_mixed';
 
 // CHANGEME: Edit the example you want below:
 //const data = RichTextHtml;
-const data = NestedLabels;
+const data = RichTextTable;
 
 function getData(task) {
   if (task && task.data) {
