@@ -172,11 +172,11 @@ const Model = types.model({
       if (
         labels.selectedLabels.length === 1 &&
         self.selected &&
-        labels.selectedLabels[0].value == self.value &&
+        labels.selectedLabels[0].value === self.value &&
         !labels.selectedLabels[0].alias && // Hack: we only gave sub-labels aliases
         region.labelings.length > 1
       ) {
-        console.log('can\'t deselect top level label w sub label!')
+        console.log('can\'t deselect top level label w sub label!');
 
         return false;
       }
