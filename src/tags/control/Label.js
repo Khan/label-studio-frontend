@@ -176,7 +176,7 @@ const Model = types.model({
         !labels.selectedLabels[0].alias && // Hack: we only gave sub-labels aliases
         region.labelings.length > 1
       ) {
-        console.log("can't deselect top level label w sub label!")
+        console.log('can\'t deselect top level label w sub label!')
 
         return false;
       }
