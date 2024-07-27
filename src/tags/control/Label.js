@@ -157,6 +157,30 @@ const Model = types.model({
       // if that's the only selected label, the only labelset assigned to region,
       // and we are trying to unselect it, then don't allow that
       // (except for rare labelsets that allow empty labels)
+
+      // Don't allow selecting a different top-level label when we've already labeled it: DI-1502
+      if (
+        labels.selectedLabels.length === 1 &&
+        !self.selected &&
+        labels.selectedLabels[0].value !== self.value &&
+        !labels.selectedLabels[0].alias // Hack: we only gave sub-labels aliases
+      ) {
+        return false;
+      }
+
+      // If this is only top level label and there are sub labels, don't allow deselect
+      if (
+        labels.selectedLabels.length === 1 &&
+        self.selected &&
+        labels.selectedLabels[0].value === self.value &&
+        !labels.selectedLabels[0].alias && // Hack: we only gave sub-labels aliases
+        region.labelings.length > 1
+      ) {
+        console.log('can\'t deselect top level label w sub label!');
+
+        return false;
+      }
+
       if (
         labels.selectedLabels.length === 1 &&
         self.selected &&
