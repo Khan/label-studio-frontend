@@ -31,6 +31,9 @@ import { HtxRichText } from './view';
 // We use a different marker than what is used in Khanmigo.
 const MATHJAX_MARKER = '$';
 
+// A class that stop rendering MathJax expressions
+const NO_MATHJAX_CLASS = 'tex2jax_ignore';
+
 // Extract math from conversation, alternate between math and non-math
 // Khanmigo uses "\(.*?\)" and "\[.*?\]" as the marker for math
 // For example, "What is \(2 + 2\)?" will split into ["What is ", "2 + 2", "?"]
@@ -76,14 +79,14 @@ const renderTableValue = (val) => {
       convoAndMathList.map((convo, i) => {
         if (i % 2 === 0) {
           // Non math
-          return <span key={`eq=${i}`}>{convo}</span>;
+          return <span key={`eq=${i}`} className={NO_MATHJAX_CLASS}>{convo}</span>;
         } else {
           // So for Math, we need to create a span as we want 2 piece of dom:
           // 1. The hidden raw MathJax expression, to allow slot Label to work
           // 2. A marked MathJax expression that allows <MathJax/> to render
           return (
             <span key={`eq-${i}`}>
-              <span style={{ 'display': 'none' }}>{'\\(' + convo + '\\)'}</span>
+              <span style={{ 'display': 'none' }} className={NO_MATHJAX_CLASS}>{'\\(' + convo + '\\)'}</span>
               <span data-skip-select='1'>{MATHJAX_MARKER + convo + MATHJAX_MARKER}</span>
             </span>
           );
@@ -99,7 +102,7 @@ const renderTableValue = (val) => {
       );
       hasMath = true;
     } else if (question) {
-      mathQuestionComponent = <div className={questionItemClass}>{question}</div>;
+      mathQuestionComponent = <div className={`${questionItemClass} ${NO_MATHJAX_CLASS}`}>{question}</div>;
     }
     if (mathAnswers.length > 1) {
       mathAnswerComponent = (
@@ -109,7 +112,7 @@ const renderTableValue = (val) => {
       );
       hasMath = true;
     } else if (answer){
-      mathAnswerComponent = <div className={answerItemClass}>{answer}</div>;
+      mathAnswerComponent = <div className={`${answerItemClass} ${NO_MATHJAX_CLASS}`}>{answer}</div>;
     }
 
     return (
@@ -124,6 +127,9 @@ const renderTableValue = (val) => {
     const mathJaxConfig = {
       tex: {
         inlineMath: [[MATHJAX_MARKER, MATHJAX_MARKER]],
+      },
+      options: {
+        ignoreHtmlClass: NO_MATHJAX_CLASS,
       },
     };
 
