@@ -37,6 +37,10 @@ const NO_MATHJAX_CLASS = 'tex2jax_ignore';
 // Extract math from conversation, alternate between math and non-math
 // Khanmigo uses "\(.*?\)" and "\[.*?\]" as the marker for math
 // For example, "What is \(2 + 2\)?" will split into ["What is ", "2 + 2", "?"]
+//
+// Note that even if this only contains MathJax, this will be wrapped in two
+// empty strings, which is what we want.
+// e.g. "\\(2 + 2\\)" will split into ["", "2 + 2", ""]
 const parseConvoWithMath = (str) => {
   // About the capture group:  a cool behaviour of str.split is that if there's
   // capturing group, the group is captured into the group, which is perfect
@@ -79,7 +83,13 @@ const renderTableValue = (val) => {
       convoAndMathList.map((convo, i) => {
         if (i % 2 === 0) {
           // Non math
-          return <span key={`eq=${i}`} className={NO_MATHJAX_CLASS}>{convo}</span>;
+          if (!convo) {
+            // Need to present space here, so if selection happens we can
+            // still observe it.  We tested that en quad space gives the most
+            // obvious selection.
+            return <span key={`eq-${i}`} className={NO_MATHJAX_CLASS}>&#x3000;</span>;
+          }
+          return <span key={`eq-${i}`} className={NO_MATHJAX_CLASS}>{convo}</span>;
         } else {
           // So for Math, we need to create a span as we want 2 piece of dom:
           // 1. The hidden raw MathJax expression, to allow slot Label to work
