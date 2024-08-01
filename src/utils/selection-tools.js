@@ -43,6 +43,7 @@ const trimSelectionLeft = (selection) => {
     currentRange = selection.getRangeAt(0);
     lastContainer = currentRange.startContainer;
   } while (
+    // check that the modify is indeed moving selection forward
     currentRange.startContainer !== lastContainer &&
     (!isTextNode(currentRange.startContainer) || isSpace(currentRange.startContainer.textContent[currentRange.startOffset]))
   );
@@ -64,6 +65,7 @@ const trimSelectionRight = (selection) => {
     currentRange = selection.getRangeAt(0);
     lastContainer = currentRange.startContainer;
   } while (
+    // check that the modify is indeed moving selection forward
     currentRange.startContainer !== lastContainer &&
     (!isTextNode(currentRange.startContainer) || isSpace(currentRange.startContainer.textContent[currentRange.startOffset]))
   );
