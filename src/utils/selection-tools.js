@@ -35,12 +35,18 @@ const trimSelectionLeft = (selection) => {
   selection.removeAllRanges();
   selection.collapse(resultRange.startContainer, resultRange.startOffset);
   let currentRange = selection.getRangeAt(0);
+  let lastContainer = currentRange.startContainer;
 
   do {
     selection.collapse(currentRange.endContainer, currentRange.endOffset);
     selection.modify('extend', 'forward', 'character');
     currentRange = selection.getRangeAt(0);
-  } while (!isTextNode(currentRange.startContainer) || isSpace(currentRange.startContainer.textContent[currentRange.startOffset]));
+    lastContainer = currentRange.startContainer;
+  } while (
+    // check that the modify is indeed moving selection forward
+    currentRange.startContainer !== lastContainer &&
+    (!isTextNode(currentRange.startContainer) || isSpace(currentRange.startContainer.textContent[currentRange.startOffset]))
+  );
   resultRange.setStart(currentRange.startContainer, currentRange.startOffset);
   selection.removeAllRanges();
   selection.addRange(resultRange);
@@ -51,12 +57,18 @@ const trimSelectionRight = (selection) => {
   selection.removeAllRanges();
   selection.collapse(resultRange.endContainer, resultRange.endOffset);
   let currentRange = selection.getRangeAt(0);
+  let lastContainer = currentRange.startContainer;
 
   do {
     selection.collapse(currentRange.startContainer, currentRange.startOffset);
     selection.modify('extend', 'backward', 'character');
     currentRange = selection.getRangeAt(0);
-  } while (!isTextNode(currentRange.startContainer) || isSpace(currentRange.startContainer.textContent[currentRange.startOffset]));
+    lastContainer = currentRange.startContainer;
+  } while (
+    // check that the modify is indeed moving selection forward
+    currentRange.startContainer !== lastContainer &&
+    (!isTextNode(currentRange.startContainer) || isSpace(currentRange.startContainer.textContent[currentRange.startOffset]))
+  );
   resultRange.setEnd(currentRange.endContainer, currentRange.endOffset);
   selection.removeAllRanges();
   selection.addRange(resultRange);
